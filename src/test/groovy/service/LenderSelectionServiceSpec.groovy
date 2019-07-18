@@ -31,7 +31,7 @@ class LenderSelectionServiceSpec extends Specification {
         given : "A Lender selection service"
             def service = new LenderSelectionServiceImpl()
 
-        when : "The lender service is called with a request for more money than is available"
+        when : "The lender service is called with the lenders and loan amount"
             def response = service.getLendersToFulfilLoanRequest([bob, jane, fred], new BigDecimal(1000))
 
         then : "The correct lenders are returned"
@@ -42,6 +42,7 @@ class LenderSelectionServiceSpec extends Specification {
             response.get(1).name == fred.name
             response.get(1).amount == fred.amount
             response.get(1).rate == fred.rate
+
     }
 
 }
