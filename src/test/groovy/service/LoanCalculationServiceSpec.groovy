@@ -32,11 +32,11 @@ class LoanCalculationServiceSpec extends Specification {
     }
 
     def "Interest rate for the total loan is calculated correctly" () {
-        given : "a a LoanCalculationService"
+        given : "a LoanCalculationService"
             def service = new LoanCalculationServiceImpl()
 
         when : "The service is called to calculate the interest rate"
-            def interest = service.calculateLoanInterestRate()
+            def interest = service.calculateLoanInterestRate(new BigDecimal(1108.10), new BigDecimal(1000), 36)
 
         then : "the interest is correct"
             interest == 7 as BigDecimal
