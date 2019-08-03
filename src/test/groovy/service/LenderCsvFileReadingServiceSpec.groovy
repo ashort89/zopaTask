@@ -22,7 +22,9 @@ class LenderCsvFileReadingServiceSpec extends Specification {
 
         and : "the list contains lenders"
             lenders.size() == 7
-            lenders.get(0) as Lender
+            lenders.forEach({ lender ->
+                assert lender as Lender
+            })
     }
 
     def "Exception is thrown if application cannot find file" () {
@@ -33,7 +35,7 @@ class LenderCsvFileReadingServiceSpec extends Specification {
         when : "I call the file reading service with a file"
             service.readLenderFile(fileLocation)
 
-        then : "No exception is thrown"
+        then : "An exception is thrown due to no file existing"
             RuntimeException ex = thrown()
             ex.message == LoanCalculationErrors.FILE_NOT_FOUND.text +" "+ fileLocation
     }
@@ -43,10 +45,10 @@ class LenderCsvFileReadingServiceSpec extends Specification {
             def service = new LenderCsvFileReadingServiceImpl()
             String fileLocation = getClass().getResource('/bad_data.csv').path
 
-        when : "I call the file reading service with a file"
+        when : "A call the file reading service with a file"
             service.readLenderFile(fileLocation)
 
-        then : "No exception is thrown"
+        then : "An exception is thrown due to bad contents"
             RuntimeException ex = thrown()
             ex.message == LoanCalculationErrors.ERROR_WITH_CONTENTS.text
     }

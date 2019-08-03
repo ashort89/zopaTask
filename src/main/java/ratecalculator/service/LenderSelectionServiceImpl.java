@@ -13,46 +13,29 @@ public class LenderSelectionServiceImpl implements LenderSelectionService {
     @Override
     public List<Lender> getLendersToFulfilLoanRequest(List<Lender> lenders, BigDecimal requestedLoanAmount) {
         checkLendersSupplyMarketDemand(lenders, requestedLoanAmount);
-        return getLendersToFulfillRequest(lenders, requestedLoanAmount);
+        return getLendersToFulfillQuote(lenders, requestedLoanAmount);
 
     }
-    private List<Lender> getLendersToFulfillRequest(List<Lender> lenders, BigDecimal requestedLoanAmount) {
-        //Sort the lenders by the best rate
+
+    private List<Lender> getLendersToFulfillQuote(List<Lender> lenders, BigDecimal requestedLoanAmount) {
         lenders.sort(Comparator.comparing(Lender::getRate));
-        BigDecimal runningTotal;
+        BigDecimal runningTotal = BigDecimal.ZERO;
         List<Lender> loanLenders = new ArrayList<>();
 
         for (Lender lender : lenders) {
-            //if the amount the lender has is more or equal too the amount required
-            if (lender.getAmount().compareTo(requestedLoanAmount) >= 0) {
-                //add the amount required for the loan
-                runningTotal = sumAmountAvailableFromLenders(loanLenders);
-                //if the currentAmount is greater than 0 then we need to diff whats left of the request
-                if (runningTotal.compareTo(requestedLoanAmount) < 0) {
-                    //check if the offset between the running total and the request amount is less than the lenders amount
-                    BigDecimal difference = requestedLoanAmount.subtract(runningTotal);
-                    loanLenders.add(new Lender(lender.getName(), lender.getRate(), difference));
+            if (runningTotal.compareTo(requestedLoanAmount) < 0) {
+                if (runningTotal.add(lender.getAmount()).compareTo(requestedLoanAmount) > 0) {
+                    Lender loanLender = new Lender(lender.getName(), lender.getRate(), requestedLoanAmount.subtract(runningTotal));
+                    loanLenders.add(loanLender);
+                    runningTotal = runningTotal.add(requestedLoanAmount.subtract(runningTotal));
                 } else {
-                    break;
+                    loanLenders.add(lender);
+                    runningTotal = runningTotal.add(lender.getAmount());
                 }
             } else {
-                //if its less than the current amount
-                BigDecimal currentAmount = sumAmountAvailableFromLenders(loanLenders);
-                BigDecimal amountLeft = requestedLoanAmount.subtract(currentAmount);
-                if (lender.getAmount().compareTo(amountLeft) > 0) {
-                    //if there is any left to add
-                    if (amountLeft.compareTo(BigDecimal.ZERO) > 0) {
-                        loanLenders.add(new Lender(lender.getName(), lender.getRate(), amountLeft));
-                    } else {
-                        break;
-                    }
-                } else {
-                    //add the full amount the lender has
-                    loanLenders.add(new Lender(lender.getName(), lender.getRate(), lender.getAmount()));
-                }
+                break;
             }
         }
-
         return loanLenders;
     }
 

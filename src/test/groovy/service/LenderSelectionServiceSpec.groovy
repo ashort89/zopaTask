@@ -42,7 +42,35 @@ class LenderSelectionServiceSpec extends Specification {
             response.get(1).name == fred.name
             response.get(1).amount == fred.amount
             response.get(1).rate == fred.rate
+            jane.amount + fred.amount == 1000
 
+    }
+
+    @Unroll
+    def "Lenders are returned according to lowest rates and the amounts are adjusted correctly" () {
+        given : "A Lender selection service"
+            def service = new LenderSelectionServiceImpl()
+
+        when : "The lender service is called with the lenders and loan amount"
+            def response = service.getLendersToFulfilLoanRequest([bob, jane, fred], amount)
+
+        then : "The correct lenders are returned"
+            response.size() == 3
+            response.get(0).name == jane.name
+            response.get(0).amount == jane.amount
+            response.get(0).rate == jane.rate
+            response.get(1).name == fred.name
+            response.get(1).amount == fred.amount
+            response.get(1).rate == fred.rate
+            response.get(2).name == bob.name
+            response.get(2).amount == lendedAmount
+            response.get(2).rate == bob.rate
+            response.get(0).amount + response.get(1).amount + response.get(2).amount == amount
+
+        where :
+        amount                      | lendedAmount
+        new BigDecimal(1500)   | 500
+        new BigDecimal(1600)   | 600
     }
 
 }

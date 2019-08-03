@@ -26,9 +26,8 @@ public class LenderCsvFileReadingServiceImpl implements LenderCsvFileReadingServ
                 .withSkipLines(LINE_TO_SKIP)
                 .build();
         try {
-            csvReader.readAll().forEach(record -> {
-                lenders.add(new Lender(record[NAME], new BigDecimal(record[RATE]), new BigDecimal(record[AMOUNT])));
-            });
+            csvReader.readAll().forEach(record -> lenders.add(new Lender(record[NAME], new BigDecimal(record[RATE]),
+                    new BigDecimal(record[AMOUNT]))));
         } catch (IOException e) {
             throw new RuntimeException(LoanCalculationErrors.ERROR_READING_FILE.getText() + " " + filePath);
         } catch (NumberFormatException | ArrayIndexOutOfBoundsException exception) {
