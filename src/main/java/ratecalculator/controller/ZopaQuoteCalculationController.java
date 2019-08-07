@@ -23,10 +23,10 @@ public class ZopaQuoteCalculationController {
 
     private String filePath;
     private String loanAmount;
-    private final LenderCsvFileReadingService lenderCsvFileReadingService;
-    private final LoanValidationService loanValidationService;
-    private final LenderSelectionService lenderSelectionService;
-    private final QuoteService quoteService;
+    private LenderCsvFileReadingService lenderCsvFileReadingService;
+    private LoanValidationService loanValidationService;
+    private LenderSelectionService lenderSelectionService;
+    private QuoteService quoteService;
 
 
     public ZopaQuoteCalculationController() {
@@ -36,7 +36,7 @@ public class ZopaQuoteCalculationController {
         this.lenderSelectionService = new LenderSelectionServiceImpl();
     }
 
-    public void getQuote(String [] args) {
+    public String getQuote(String [] args) {
         validateArguments(args);
         filePath = args[LENDERS_FILE_PATH_INDEX];
         loanAmount = args[LOAN_AMOUNT_INDEX];
@@ -45,7 +45,7 @@ public class ZopaQuoteCalculationController {
         List<Lender> lenders = lenderCsvFileReadingService.readLenderFile(filePath);
         List<Lender> lendersForLoan = lenderSelectionService.getLendersToFulfilLoanRequest(lenders, requestedLoanAmount);
         Quote quote = quoteService.generateQuote(lendersForLoan, requestedLoanAmount);
-        System.out.println(quote.toString());
+        return quote.toString();
     }
 
     private void validateArguments(String[] args) {
